@@ -31,7 +31,8 @@ public class SensorNetwork extends Thread{
     private IMU imu;
     private YawPitchRollAngles orientation;
 
-    private double heading;
+    private double heading, pitch, roll, zeroHeading, zeroRoll, zeroPitch;
+
 
     private AngularVelocity angularVelocity;
     
@@ -50,39 +51,64 @@ public class SensorNetwork extends Thread{
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES, 0, 90, 0, 0));
 
         imu.initialize(new IMU.Parameters(orientationOnRobot));
-        imu.resetYaw();
-        imu.resetPitch();
-        imu.reserRoll();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
+        double sumHeading = 0;
+        double sumRoll = 0;
+        double sumPitch = 0;
+        for( int i = 0; i<5; i++){
+            orientation = imu.getRobotYawPitchRollAngles();
+            for (int i = 0; i < 10; i++){
+                opModeTool.idle();
+            }
+            sumHeading += orientation.getYaw(AngleUnit.RADIANS);
+            sumRoll += orientation.getRoll(AngleUnit.RADIANS);
+            sumPitch += orientation.getPitch(AngleUnit.RADIANS);
+        }
+        zeroHeading = sumHeading/5;
+        zeroRoll = sumRoll/5;
+        zeroPitch = sumPitch/5;
 
         //angularVelocity = imu.getRobotAngularVelocity(AngleUnit.RADIANS);
-        orientation = imu.getRobotYawPitchRollAngles();
-        heading = orientation.getYaw(AngleUnit.RADIANS);
+        heading = zeroHeading;
+        roll = zeroRoll;
+        pitch = zeroPitch;
 
         timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
     } //end init method
 
     /*
-    *
+    *ru
     **/
     public void run(){
         while(opModeTool.opModeIsActive()){
             orientation = imu.getRobotYawPitchRollAngles();
             opModeTool.idle();
             opModeTool.idle();
-            //heading = orientation.getYaw(AngleUnit.RADIANS);
-            heading = orientation.getYaw(AngleUnit.DEGREES);
+            heading = orientation.getYaw(AngleUnit.RADIANS);
+            pitch = orientation.getPitch(AngleUnit.RADIANS);
+            roll = orientation.getRoll(AngleUnit.RADIANS);
         }
     }
 
     public double getHeading(){
-        return heading;
+        return heading - zeroHeading;
     }
+    public double getHeadingDeg(){return (heading - zeroHeading)*180/Math.PI;}
+
+    public double getPitch(){
+        return pitch - zeroPitch;
+    }
+    public double getPitchDeg(){
+        return (pitch - zeroPitch)*180/Math.PI;
+    }
+
+    public double getRoll(){return roll - zeroRoll;}
+    public double getRollDeg(){
+        return (roll - zeroRoll)*180/Math.PI;
+    }
+
+
+
 
     /*
     public void initialize(float gainForward, float gainFront, float gainRear) {

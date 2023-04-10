@@ -28,7 +28,7 @@ public class TestingIMU extends LinearOpMode{
 
         while(opModeIsActive()){
 
-            heading = sensor.getHeading();
+            heading = sensor.getHeadingDeg();
 
             telemetry.addData("Heading: ", "%.05f", heading);
             telemetry.addLine();
