@@ -51,6 +51,13 @@ public class SensorNetwork extends Thread{
 
         imu.initialize(new IMU.Parameters(orientationOnRobot));
         imu.resetYaw();
+        imu.resetPitch();
+        imu.reserRoll();
+        opModeTool.idle();
+        opModeTool.idle();
+        opModeTool.idle();
+        opModeTool.idle();
+        opModeTool.idle();
 
         //angularVelocity = imu.getRobotAngularVelocity(AngleUnit.RADIANS);
         orientation = imu.getRobotYawPitchRollAngles();
@@ -68,7 +75,8 @@ public class SensorNetwork extends Thread{
             orientation = imu.getRobotYawPitchRollAngles();
             opModeTool.idle();
             opModeTool.idle();
-            heading = orientation.getYaw(AngleUnit.RADIANS);
+            //heading = orientation.getYaw(AngleUnit.RADIANS);
+            heading = orientation.getYaw(AngleUnit.DEGREES);
         }
     }
 
