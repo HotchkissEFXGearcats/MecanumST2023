@@ -37,49 +37,96 @@ public class SensorNetwork extends Thread{
     private AngularVelocity angularVelocity;
     
     /* CLASS CONSTRUCTOR */
+
+    /**
+     * Default constructor
+     * @param hardwareMap
+     * @param opModeTool
+     */
     public SensorNetwork(HardwareMap hardwareMap, LinearOpMode opModeTool) {
         this.hardwareMap = hardwareMap;
         this.opModeTool = opModeTool;
         this.flag = true;
+        this.zeroHeading = 0.0;
     }
 
     /**
      * Initalizes the IMU.
      */
     public void initialize(){
+        this.zeroPitch = 0.0;
+        this.zeroRoll = 0.0;
+       // zeroHeading = 0.0;
         imu = hardwareMap.get(IMU.class, "imu");
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES, 0, 90, 0, 0));
 
         imu.initialize(new IMU.Parameters(orientationOnRobot));
-        double sumHeading = 0;
-        double sumRoll = 0;
-        double sumPitch = 0;
+        opModeTool.idle();
+        opModeTool.idle();
+        opModeTool.idle();
+        opModeTool.idle();
+        opModeTool.idle();
+        opModeTool.idle();
+        opModeTool.idle();
+        opModeTool.idle();
+        opModeTool.idle();
+        opModeTool.idle();
+        orientation = imu.getRobotYawPitchRollAngles();
+        opModeTool.idle();
+        opModeTool.idle();
+        zeroHeading = orientation.getYaw(AngleUnit.RADIANS);
+        opModeTool.telemetry.addData("zeroHeading: ", "%.05f", zeroHeading);
+        opModeTool.telemetry.update();
+
+
+
+
+/*
         for( int i = 0; i<5; i++){
-            orientation = imu.getRobotYawPitchRollAngles();
-            for (int i = 0; i < 10; i++){
+            this.orientation = this.imu.getRobotYawPitchRollAngles();
+            opModeTool.telemetry.addData("Loop i: ", i);
+            for (int j = 0; j < 10; j++){
                 opModeTool.idle();
+                opModeTool.telemetry.addData("Idle j: ", j);
             }
-            sumHeading += orientation.getYaw(AngleUnit.RADIANS);
-            sumRoll += orientation.getRoll(AngleUnit.RADIANS);
-            sumPitch += orientation.getPitch(AngleUnit.RADIANS);
+            this.zeroHeading += this.orientation.getYaw(AngleUnit.RADIANS);
+            this.zeroRoll += this.orientation.getRoll(AngleUnit.RADIANS);
+            this.zeroPitch += this.orientation.getPitch(AngleUnit.RADIANS);
+            opModeTool.telemetry.addData("Yaw reading: ", "%.05f", this.orientation.getYaw(AngleUnit.RADIANS));
         }
-        zeroHeading = sumHeading/5;
-        zeroRoll = sumRoll/5;
-        zeroPitch = sumPitch/5;
+        this.zeroHeading = this.zeroHeading/5.0;
+        this.zeroRoll = this.zeroRoll/5.0;
+        this.zeroPitch = this.zeroPitch/5.0;
+        opModeTool.telemetry.addData("zeroPitch: ", "%.05f", this.zeroPitch);
+        opModeTool.telemetry.addData("zeroRoll: ", "%.05f", this.zeroRoll);
+        opModeTool.telemetry.addData("zeroHeading: ", "%.05f", this.zeroHeading);
+        opModeTool.telemetry.update();
 
-        //angularVelocity = imu.getRobotAngularVelocity(AngleUnit.RADIANS);
-        heading = zeroHeading;
-        roll = zeroRoll;
-        pitch = zeroPitch;
-
+ */
         timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
     } //end init method
 
-    /*
-    *ru
+    /**
+    *runs sensornetwork readings in a separate thread
     **/
     public void run(){
+        zeroPitch = 0.0;
+        zeroRoll = 0.0;
+        zeroHeading = 0.0;
+        for( int i = 0; i<5; i++){
+            orientation = imu.getRobotYawPitchRollAngles();
+            for (int j = 0; j < 10; j++){
+                opModeTool.idle();
+            }
+            zeroHeading += orientation.getYaw(AngleUnit.RADIANS);
+            zeroRoll += orientation.getRoll(AngleUnit.RADIANS);
+            zeroPitch += orientation.getPitch(AngleUnit.RADIANS);
+        }
+        zeroHeading = zeroHeading/5.0;
+        zeroRoll = zeroRoll/5.0;
+        zeroPitch = zeroPitch/5.0;
+
         while(opModeTool.opModeIsActive()){
             orientation = imu.getRobotYawPitchRollAngles();
             opModeTool.idle();
@@ -88,16 +135,17 @@ public class SensorNetwork extends Thread{
             pitch = orientation.getPitch(AngleUnit.RADIANS);
             roll = orientation.getRoll(AngleUnit.RADIANS);
         }
-    }
+    }  // end run method
 
+    /**
+     * @return heading in degrees
+     */
     public double getHeading(){
         return heading - zeroHeading;
     }
     public double getHeadingDeg(){return (heading - zeroHeading)*180/Math.PI;}
 
-    public double getPitch(){
-        return pitch - zeroPitch;
-    }
+    public double getPitch(){return pitch - zeroPitch;}
     public double getPitchDeg(){
         return (pitch - zeroPitch)*180/Math.PI;
     }

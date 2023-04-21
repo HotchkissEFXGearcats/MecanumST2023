@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public class TestingIMU extends LinearOpMode{
 
     private SensorNetwork sensor;
-    private double heading;
+    private double heading, pitch, roll;
 
     @Override
     public void runOpMode(){
@@ -16,11 +16,7 @@ public class TestingIMU extends LinearOpMode{
 
         sensor.initialize();
 
-        heading = sensor.getHeading();
 
-        telemetry.addData("Heading: ", "%.05f", heading);
-        telemetry.addLine();
-        telemetry.update();
 
         waitForStart();
 
@@ -29,8 +25,14 @@ public class TestingIMU extends LinearOpMode{
         while(opModeIsActive()){
 
             heading = sensor.getHeadingDeg();
+            roll = sensor.getRollDeg();
+            pitch = sensor.getPitchDeg();
 
             telemetry.addData("Heading: ", "%.05f", heading);
+            telemetry.addLine();
+            telemetry.addData("Roll: ", "%.05f", roll);
+            telemetry.addLine();
+            telemetry.addData("Pitch: ", "%.05f", pitch);
             telemetry.addLine();
             telemetry.update();
             idle();

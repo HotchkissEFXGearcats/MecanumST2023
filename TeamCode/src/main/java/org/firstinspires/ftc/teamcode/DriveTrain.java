@@ -29,6 +29,7 @@ public class DriveTrain {
     
     private HardwareMap hardwareMap;
     private LinearOpMode opModeTool;
+    private SensorNetwork sensors;
     
     private ElapsedTime timer;
     
@@ -55,29 +56,16 @@ public class DriveTrain {
     //private Headings headings; 
     
     /* CLASS CONSTRUCTOR */
-    public DriveTrain(HardwareMap hardwareMap, LinearOpMode opModeTool) {
+    public DriveTrain(HardwareMap hardwareMap, LinearOpMode opModeTool, SensorNetwork sensors) {
         this.hardwareMap = hardwareMap;
         this.opModeTool = opModeTool;
+        this.sensors = sensors;
        // initialize();
     }
     
 // @TeleOp(name="HeidiDrive", group="Classes")    
     
     public void initialize() {
-        
-        //
-        // Initialize IMU using Parameters
-        //
-        
-        imu = hardwareMap.get(IMU.class, "imu");
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES, 45, 0, 0, 0));
-        
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
-        imu.resetYaw();
-        
-        angularVelocity = imu.getRobotAngularVelocity(AngleUnit.RADIANS);
-        orientation = imu.getRobotYawPitchRollAngles();
-        setHeading = -orientation.getYaw(AngleUnit.RADIANS);
         
         timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         
@@ -144,34 +132,7 @@ public class DriveTrain {
         leftBackMotor.setPower(vector.mag * sin((vector.angle - PI/4)) );  //xPower
         rightBackMotor.setPower(vector.mag * sin((vector.angle + PI/4)) );  //xPower
     }
-    
-    
-    
-    public double getHeading () {
-        
-        orientation = imu.getRobotYawPitchRollAngles();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
-        opModeTool.idle();
-        
-        return -orientation.getYaw(AngleUnit.RADIANS);
-        
-    }
-    
-    
-    public double getSetHeading () {
-        return setHeading;
-    }
-    
-    
+
     public int getPositionLF() {
         return leftFrontMotor.getCurrentPosition();
     }
@@ -187,9 +148,7 @@ public class DriveTrain {
     public int getPositionRB() {
         return rightBackMotor.getCurrentPosition();
     }
-    
-    
-    
+
     
     
     public boolean autonVector(DriveVector vector, int toPosition) {
@@ -200,9 +159,7 @@ public class DriveTrain {
             rightBackMotor.setPower(0.0);
         } else {
             while (abs(linearPosition(false)) < toPosition) {
-                orientation = imu.getRobotYawPitchRollAngles();
-                opModeTool.idle();
-                botHeading = -orientation.getYaw(AngleUnit.RADIANS);
+                botHeading = -sensors.getHeadingDeg();
                 headingOffset = (botHeading - setHeading);
                 if (abs(headingOffset) < PI/4) {
                     turn = (kAuto * headingOffset) / (PI/4);
@@ -222,6 +179,10 @@ public class DriveTrain {
                 opModeTool.telemetry.addData("Position: ", linearPosition(false));
                 opModeTool.telemetry.update();
             }  // end while
+            leftFrontMotor.setPower(0.0);
+            rightFrontMotor.setPower(0.0);
+            leftBackMotor.setPower(0.0);
+            rightBackMotor.setPower(0.0); //test this with and without
         }  // end if-else
         return warning;
     }  // end method autonVector
@@ -291,27 +252,23 @@ public class DriveTrain {
     // 
     // Turn to heading
     //
-    
-    public double turnTo(double turnPower, double toHeading) {
-        orientation = imu.getRobotYawPitchRollAngles();
-        opModeTool.idle();
-        botHeading = -orientation.getYaw(AngleUnit.RADIANS);
+    /*
+    * returns botHeading
+     */
+    public double turnTo(double turnPower, double toHeading){
+        botHeading = -sensors.getHeading();
         while (abs(botHeading - toHeading) > (PI/180)) {
             leftFrontMotor.setPower(turnPower);
             rightFrontMotor.setPower(turnPower);
             leftBackMotor.setPower(-turnPower);
             rightBackMotor.setPower(-turnPower);
-            orientation = imu.getRobotYawPitchRollAngles();
-            opModeTool.idle();
-            botHeading = -orientation.getYaw(AngleUnit.RADIANS);
+            botHeading = -sensors.getHeading();
         }  // end while
         leftFrontMotor.setPower(0.0);
         rightFrontMotor.setPower(0.0);
         leftBackMotor.setPower(0.0);
         rightBackMotor.setPower(0.0);
-        orientation = imu.getRobotYawPitchRollAngles();
-        opModeTool.idle();
-        setHeading = -orientation.getYaw(AngleUnit.RADIANS);
+        setHeading = -sensors.getHeading();
         return botHeading;
     }  // end method turn 
     
