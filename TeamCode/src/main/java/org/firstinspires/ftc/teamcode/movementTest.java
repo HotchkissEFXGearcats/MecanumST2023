@@ -1,26 +1,40 @@
 package org.firstinspires.ftc.teamcode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@TeleOp
+@Autonomous
 
-public class TestingIMU extends LinearOpMode{
+public class movementTest extends LinearOpMode{
 
     private SensorNetwork sensor;
-    private double heading, pitch, roll;
+    private DriveTrain drive;
+    private DriveVector vector;
+
+    private double heading, roll, pitch;
 
     @Override
     public void runOpMode(){
         sensor = new SensorNetwork(hardwareMap, this);
+        drive = new DriveTrain(hardwareMap, this, sensor);
+        vector = new DriveVector();
 
         sensor.initialize();
-
-
+        vector.initialize();
+        drive.initialize();
 
         waitForStart();
 
         sensor.start();
+
+        idle();
+        drive.linearPosition(true);
+        /*vector.angle = 0.6;
+        vector.mag = 0.4;
+        drive.autonVector(vector, 1000);*/
+        drive.LturnTo(0.4, 90);
+
 
         while(opModeIsActive()){
 
@@ -29,14 +43,15 @@ public class TestingIMU extends LinearOpMode{
             pitch = sensor.getPitchDeg();
 
             telemetry.addData("Heading: ", "%.05f", heading);
-            telemetry.addData("HeadingR: ", "%.05f", sensor.getHeading());
+            telemetry.addLine();
             telemetry.addData("Roll: ", "%.05f", roll);
-            telemetry.addData("RollR: ", "%.05f",  sensor.getRoll());
+            telemetry.addLine();
             telemetry.addData("Pitch: ", "%.05f", pitch);
-            telemetry.addData("PitchR: ", "%.05f",  sensor.getPitch());
             telemetry.addLine();
             telemetry.update();
             idle();
+
+
         }// end while loop
     }
 }

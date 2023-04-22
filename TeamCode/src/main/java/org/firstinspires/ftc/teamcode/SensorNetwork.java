@@ -58,7 +58,7 @@ public class SensorNetwork extends Thread{
         this.zeroRoll = 0.0;
        // zeroHeading = 0.0;
         imu = hardwareMap.get(IMU.class, "imu");
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES, 0, 90, 0, 0));
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES, 0, 0, 0, 0));
 
         imu.initialize(new IMU.Parameters(orientationOnRobot));
         opModeTool.idle();
