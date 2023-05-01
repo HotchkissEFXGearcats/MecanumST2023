@@ -56,10 +56,8 @@ public class DriveTrain {
         this.hardwareMap = hardwareMap;
         this.opModeTool = opModeTool;
         this.sensors = sensors;
-       // initialize();
+        initialize();
     }
-    
-// @TeleOp(name="HeidiDrive", group="Classes")    
     
     public void initialize() {
         
@@ -120,14 +118,6 @@ public class DriveTrain {
         driveBuffer = 300;
         
     }  // end method initialize
-    
-    
-    public void testMotors(DriveVector vector) {
-        leftFrontMotor.setPower(vector.mag * sin((vector.angle + PI/4)) );  //yPower
-        rightFrontMotor.setPower(vector.mag * sin((vector.angle - PI/4)) );  //yPower
-        leftBackMotor.setPower(vector.mag * sin((vector.angle - PI/4)) );  //xPower
-        rightBackMotor.setPower(vector.mag * sin((vector.angle + PI/4)) );  //xPower
-    }
 
     public int getPositionLF() {
         return leftFrontMotor.getCurrentPosition();
@@ -145,9 +135,116 @@ public class DriveTrain {
         return rightBackMotor.getCurrentPosition();
     }
 
-    
-    
+    /**
+     * Returns the motor position and has the capability to reset the tick counter if the param is true.
+     * @param reset
+     * @return motorPosition in ticks
+     */
+    public int linearPosition(boolean reset) {
+
+        if (reset) {
+
+            leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+            rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+            leftBackMotor.setDirection(DcMotor.Direction.FORWARD);
+            rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
+
+            leftFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rightFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            leftBackMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rightBackMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        } else {
+
+            positionLF = leftFrontMotor.getCurrentPosition();
+            positionRF = rightFrontMotor.getCurrentPosition();
+            positionLB = leftBackMotor.getCurrentPosition();
+            positionRB = rightBackMotor.getCurrentPosition();
+
+            avgPosition = (int)((abs(positionLF) + abs(positionRF) + abs(positionLB) + abs(positionRB))/4);
+
+        } // end if-else
+
+        return avgPosition;
+
+    }  // end method drivePosition
+
+    /*
+          Robot Movement Functions
+          1.testMotors - tests motors and vectors (in radians)
+          2.autonVector - Moves the robot in a vector for a certain amt of ticks.Takes the vector in degrees.
+          3.autonVectorRad - AutonVector but in radians because Dr.Hickman insists.
+          5.autonVectorTurn - Moves the robot in a vector and turns for certain amt of ticks.Uses degrees.
+          4.TurnTo - Turns the robot in degrees
+          5.TurnToRad - Turns the robot in radians.
+     */
+
+    public void testMotors(DriveVector vector) {
+        leftFrontMotor.setPower(vector.mag * sin((vector.angle + PI/4)) );  //yPower
+        rightFrontMotor.setPower(vector.mag * sin((vector.angle - PI/4)) );  //yPower
+        leftBackMotor.setPower(vector.mag * sin((vector.angle - PI/4)) );  //xPower
+        rightBackMotor.setPower(vector.mag * sin((vector.angle + PI/4)) );  //xPower
+    }
+
+    /**
+     * Moves robot with a certain vector (degrees) for a set amount of ticks.
+     * @param vector
+     * @param toPosition
+     * @return warning
+     */
     public boolean autonVector(DriveVector vector, int toPosition) {
+        if (vector.mag < 0.05) {
+            leftFrontMotor.setPower(0.0);
+            rightFrontMotor.setPower(0.0);
+            leftBackMotor.setPower(0.0);
+            rightBackMotor.setPower(0.0);
+        } else {
+            while (abs(linearPosition(false)) < toPosition) {
+                botHeading = sensors.getHeading();
+                headingOffset = (botHeading - setHeading);
+                if (abs(headingOffset) < PI/4) {
+                    turn = (kAuto * headingOffset) / (PI/4);
+                } else if (abs(headingOffset) < PI/3) {
+                    turn = kAuto * 1;
+                } else {
+                    leftFrontMotor.setPower(0.0);
+                    rightFrontMotor.setPower(0.0);
+                    leftBackMotor.setPower(0.0);
+                    rightBackMotor.setPower(0.0);
+                    warning = true;
+                }  // end if-else turn < 0.05 case is not turning
+                leftFrontMotor.setPower(vector.mag * sin(((vector.angle*PI/180) - setHeading)+PI/4) - turn );  //yPower
+                leftBackMotor.setPower(vector.mag * -sin(((vector.angle*PI/180) - setHeading)-PI/4) - turn );  //xPower
+                rightFrontMotor.setPower(vector.mag * -sin(((vector.angle*PI/180) - setHeading)-PI/4) + turn );  //yPower
+                rightBackMotor.setPower(vector.mag * sin(((vector.angle*PI/180) - setHeading)+PI/4) + turn );  //xPower
+                opModeTool.telemetry.addData("Position: ", linearPosition(false));
+                opModeTool.telemetry.update();
+            }  // end while
+            leftFrontMotor.setPower(0.0);
+            rightFrontMotor.setPower(0.0);
+            leftBackMotor.setPower(0.0);
+            rightBackMotor.setPower(0.0);
+            linearPosition(true);
+        }  // end if-else
+        return warning;
+    }  // end method autonVector
+    /**
+     * Moves robot with a certain vector (radians) for a set amount of ticks
+     * @param vector
+     * @param toPosition
+     * @return warning
+     */
+    public boolean autonVectorRad(DriveVector vector, int toPosition) {
         if (vector.mag < 0.05) {
             leftFrontMotor.setPower(0.0);
             rightFrontMotor.setPower(0.0);
@@ -179,55 +276,15 @@ public class DriveTrain {
             rightFrontMotor.setPower(0.0);
             leftBackMotor.setPower(0.0);
             rightBackMotor.setPower(0.0);
+            linearPosition(true);
         }  // end if-else
         return warning;
-    }  // end method autonVector
-        
-    
-    public int linearPosition(boolean reset) {
-        
-        if (reset) {
-            
-            leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        
-            leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }  // end method autonVectorRad
 
-            leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
-            rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-            leftBackMotor.setDirection(DcMotor.Direction.FORWARD);
-            rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
-        
-            leftFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            rightFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            leftBackMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            rightBackMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            
-        } else {
-            
-            positionLF = leftFrontMotor.getCurrentPosition();
-            positionRF = rightFrontMotor.getCurrentPosition();
-            positionLB = leftBackMotor.getCurrentPosition();
-            positionRB = rightBackMotor.getCurrentPosition();
-            
-            avgPosition = (int)((abs(positionLF) + abs(positionRF) + abs(positionLB) + abs(positionRB))/4);
-            
-        } // end if-else
-        
-        return avgPosition;
-        
-    }  // end method drivePosition
-    
-    
-    // 
-    // Stop the bot
-    //
-    
+    /**
+     * Stops bot
+     * @return avgPosition
+     */
     public int stop() {
         
         leftFrontMotor.setPower(0.0);
@@ -243,28 +300,37 @@ public class DriveTrain {
         avgPosition = (int)((abs(positionLF) + abs(positionRF) + abs(positionLB) + abs(positionRB))/4);
         return avgPosition;
     }
-    
-    
-    // 
-    // Turn to heading
-    //
-    /*
-    * returns botHeading
+
+
+    /**
+     * turnTo (in degrees)
+     * @param turnPower
+     * @param toHeading
+     * @return
      */
     public double turnTo(double turnPower, double toHeading){
         botHeading = sensors.getHeading();
-        while (abs(botHeading - toHeading) > (PI/180)) {
-            leftFrontMotor.setPower(-turnPower);
-            rightFrontMotor.setPower(turnPower);
-            leftBackMotor.setPower(-turnPower);
-            rightBackMotor.setPower(turnPower);
+        toHeading = PI/180 * toHeading;
+        while (toHeading-botHeading > PI/180 ) {
+            if (toHeading-botHeading > 0) {
+                leftFrontMotor.setPower(turnPower);
+                leftBackMotor.setPower(turnPower);
+                rightFrontMotor.setPower(-turnPower);
+                rightBackMotor.setPower(-turnPower);
+            }
+            else{
+                leftFrontMotor.setPower(-turnPower);
+                leftBackMotor.setPower(-turnPower);
+                rightFrontMotor.setPower(turnPower);
+                rightBackMotor.setPower(turnPower);
+            }
             botHeading = sensors.getHeading();
         }  // end while
         leftFrontMotor.setPower(0.0);
         rightFrontMotor.setPower(0.0);
         leftBackMotor.setPower(0.0);
         rightBackMotor.setPower(0.0);
-        setHeading = -sensors.getHeading();
+        setHeading = toHeading;
         return botHeading;
     }  // end method turn
 
@@ -299,25 +365,6 @@ public class DriveTrain {
         return botHeading;
     }  // end method turn
 
-    
-    public boolean autonVector2(DriveVector vector, int toPosition) {
-        if (vector.mag < 0.05) {
-            leftFrontMotor.setPower(0.0);
-            rightFrontMotor.setPower(0.0);
-            leftBackMotor.setPower(0.0);
-            rightBackMotor.setPower(0.0);
-        } else {
-            while (abs(linearPosition(false)) < toPosition) {
-                leftFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading + PI/4)) );  //yPower
-                rightFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading - PI/4)) );  //yPower
-                leftBackMotor.setPower(vector.mag * sin((vector.angle - setHeading - PI/4)) );  //xPower
-                rightBackMotor.setPower(vector.mag * sin((vector.angle - setHeading + PI/4)) );  //xPower
-                opModeTool.telemetry.addData("Position: ", linearPosition(false));
-                opModeTool.telemetry.update();
-            }  // end while
-        }  // end if-else
-        return warning;
-    }  // end method autonVector
 }  // end class
 
 

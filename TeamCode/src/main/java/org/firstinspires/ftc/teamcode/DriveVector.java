@@ -33,7 +33,7 @@ public class DriveVector {
     
     
     // This methods corrects the Euler angle to a range of -PI to +PI with a shift
-    // transformation to math the IMU heading.
+    // transformation to math the IMU heading. Only for radians.
     private void heading() {
         if ((angle < -PI/2) && (angle >= -PI)) {
             angle = 2*PI + angle - PI/2;
