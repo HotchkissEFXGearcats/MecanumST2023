@@ -119,7 +119,7 @@ public class SensorNetwork extends Thread{
             for (int j = 0; j < 10; j++){
                 opModeTool.idle();
             }
-            zeroHeading += orientation.getYaw(AngleUnit.RADIANS);
+            zeroHeading += -orientation.getYaw(AngleUnit.RADIANS);
             zeroRoll += orientation.getRoll(AngleUnit.RADIANS);
             zeroPitch += orientation.getPitch(AngleUnit.RADIANS);
         }
@@ -131,7 +131,7 @@ public class SensorNetwork extends Thread{
             orientation = imu.getRobotYawPitchRollAngles();
             opModeTool.idle();
             opModeTool.idle();
-            heading = orientation.getYaw(AngleUnit.RADIANS);
+            heading = -orientation.getYaw(AngleUnit.RADIANS);
             pitch = orientation.getPitch(AngleUnit.RADIANS);
             roll = orientation.getRoll(AngleUnit.RADIANS);
         }

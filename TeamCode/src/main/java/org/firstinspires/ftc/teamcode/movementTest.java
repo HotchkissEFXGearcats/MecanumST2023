@@ -30,10 +30,14 @@ public class movementTest extends LinearOpMode{
 
         idle();
         drive.linearPosition(true);
-        /*vector.angle = 0.6;
+        vector.angle = 1.57;
         vector.mag = 0.4;
-        drive.autonVector(vector, 1000);*/
-        drive.LturnTo(0.4, 90);
+        drive.autonVector(vector, 1000);
+        drive.linearPosition(true);
+        vector.angle = 0;
+        vector.mag = 0.4;
+        drive.autonVector(vector, 1000);
+        //drive.LturnTo(0.4, 90);
 
 
         while(opModeIsActive()){

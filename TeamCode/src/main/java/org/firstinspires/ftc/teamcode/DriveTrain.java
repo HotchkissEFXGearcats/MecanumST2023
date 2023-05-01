@@ -155,7 +155,7 @@ public class DriveTrain {
             rightBackMotor.setPower(0.0);
         } else {
             while (abs(linearPosition(false)) < toPosition) {
-                botHeading = -sensors.getHeading();
+                botHeading = sensors.getHeading();
                 headingOffset = (botHeading - setHeading);
                 if (abs(headingOffset) < PI/4) {
                     turn = (kAuto * headingOffset) / (PI/4);
@@ -168,17 +168,17 @@ public class DriveTrain {
                     rightBackMotor.setPower(0.0);
                     warning = true;
                 }  // end if-else turn < 0.05 case is not turning
-                leftFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading + PI/4)) - turn );  //yPower
-                rightFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading + PI/4)) - turn );  //yPower
-                leftBackMotor.setPower(vector.mag * sin((vector.angle - setHeading + PI/4)) + turn );  //xPower
-                rightBackMotor.setPower(vector.mag * sin((vector.angle - setHeading + PI/4)) + turn );  //xPower
+                leftFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) - turn );  //yPower
+                leftBackMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) - turn );  //xPower
+                rightFrontMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) + turn );  //yPower
+                rightBackMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) + turn );  //xPower
                 opModeTool.telemetry.addData("Position: ", linearPosition(false));
                 opModeTool.telemetry.update();
             }  // end while
             leftFrontMotor.setPower(0.0);
             rightFrontMotor.setPower(0.0);
             leftBackMotor.setPower(0.0);
-            rightBackMotor.setPower(0.0); //test this with and without
+            rightBackMotor.setPower(0.0);
         }  // end if-else
         return warning;
     }  // end method autonVector
@@ -197,11 +197,11 @@ public class DriveTrain {
             rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            
-            rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-            rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
+
             leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
-            leftBackMotor.setDirection(DcMotor.Direction.FORWARD);
+            rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+            leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
+            rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
         
             leftFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             rightFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -318,10 +318,6 @@ public class DriveTrain {
         }  // end if-else
         return warning;
     }  // end method autonVector
-    
-    
-    
-    
 }  // end class
 
 
