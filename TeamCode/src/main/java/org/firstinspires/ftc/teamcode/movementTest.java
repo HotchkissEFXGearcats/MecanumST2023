@@ -35,8 +35,11 @@ public class movementTest extends LinearOpMode{
         vector.angle = 0;
         vector.mag = 0.4;
         drive.autonVectorRad(vector, 1000);
-        drive.turnTo(0.2, 180);
-        drive.turnTo(0.2, -90);
+        drive.turnTo(0.2, 90);
+        vector.angle = 180;
+        vector.mag = 0.4;
+        drive.autonVectorRad(vector, 1000);
+        drive.turnTo(0.2, -70);
         //drive.LturnTo(0.4, 90);
 
 

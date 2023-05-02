@@ -326,6 +326,10 @@ public class DriveTrain {
             }
             botHeading = sensors.getHeading();
         }  // end while
+        /*psudo code for correction
+        make a special case if target is 180
+        for the rest, make botheading - setheading and correct.
+         */
         leftFrontMotor.setPower(0.0);
         rightFrontMotor.setPower(0.0);
         leftBackMotor.setPower(0.0);
