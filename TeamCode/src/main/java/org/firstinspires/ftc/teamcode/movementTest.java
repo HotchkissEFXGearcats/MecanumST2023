@@ -29,9 +29,9 @@ public class movementTest extends LinearOpMode{
         sensor.start();
 
         idle();
-        vector.angle = 180;
-        vector.mag = 0.0;
-        drive.autonVectorTurn(vector,1000,0.4,90);
+        vector.angle = 45;
+        vector.mag = 0.3;
+        drive.autonVectorTurn(vector,1000,0.4,-90);
 
 
         while(opModeIsActive()){
@@ -39,14 +39,6 @@ public class movementTest extends LinearOpMode{
             heading = sensor.getHeadingDeg();
             roll = sensor.getRollDeg();
             pitch = sensor.getPitchDeg();
-
-            telemetry.addData("Heading: ", "%.05f", heading);
-            telemetry.addLine();
-            telemetry.addData("Roll: ", "%.05f", roll);
-            telemetry.addLine();
-            telemetry.addData("Pitch: ", "%.05f", pitch);
-            telemetry.addLine();
-            telemetry.update();
             idle();
 
 

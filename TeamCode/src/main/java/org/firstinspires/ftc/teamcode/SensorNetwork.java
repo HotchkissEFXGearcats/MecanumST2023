@@ -75,8 +75,6 @@ public class SensorNetwork extends Thread{
         opModeTool.idle();
         opModeTool.idle();
         zeroHeading = orientation.getYaw(AngleUnit.RADIANS);
-        opModeTool.telemetry.addData("zeroHeading: ", "%.05f", zeroHeading);
-        opModeTool.telemetry.update();
 
 
 
