@@ -26,7 +26,7 @@ public class DriveVector {
     
     public void initialize() {
         this.powerThreshold = 0.05;
-        this.precisionScalar = 0.25;
+        this.precisionScalar = 1;
         this.powerScalar = 0.55;
     }
     
@@ -47,7 +47,25 @@ public class DriveVector {
     // This method accepts the left and right stick values from the gamepad, then it calculates either a 
     // a power or precision vector depending on priority (precision priority). It then calls the heading()
     // method to correct the Euler angle to -PI to +PI.
-    public DriveVector makeVector(double leftStickX, double leftStickY, double rightStickX, double rightStickY) {
+    public DriveVector makeVector(double rightStickX, double rightStickY) {
+
+        //precisionScalar = 0.2;
+        //powerScalar = 0.75;
+
+        rightX = rightStickX;
+        rightY = rightStickY;
+
+        rightMag = sqrt((rightY * rightY) + (rightX * rightX));
+        if (rightMag > 1) {
+            rightMag = 1;
+        }
+
+        mag = this.precisionScalar * rightMag;
+        angle = atan2(rightY, rightX);
+        heading();
+        return this;
+    }  // end method makeVector
+    /*public DriveVector makeVector(double leftStickX, double leftStickY, double rightStickX, double rightStickY) {
         
         //precisionScalar = 0.2;
         //powerScalar = 0.75;
@@ -75,7 +93,7 @@ public class DriveVector {
         }  // end if statement
         heading();
         return this;
-    }  // end method makeVector
+    }  // end method makeVector*/
 
 }  // end class
 

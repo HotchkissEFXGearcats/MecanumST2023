@@ -112,7 +112,7 @@ public class DriveTrain {
         
         kp = 0.35;
         kAuto = 0.4;
-        scaleTurn = 0.25;
+        scaleTurn = 1; //how fast the robot would go in driver mode
         flag = true;
         
         driveBuffer = 300;
@@ -253,14 +253,14 @@ public class DriveTrain {
         opModeTool.telemetry.update();
 
         while (abs(linearPosition(false)) < toPosition) {
-            if (abs(toHeading-botHeading) > 2*PI/180 ) {
+            if (abs(toHeading-botHeading) > PI/180 ) {
                 if (toHeading-botHeading > 0) {
                     turnLeft = turnPower;
                     turnRight = -turnPower;
                 }
                 else{
                     turnLeft = -turnPower;
-                    turnRight =turnPower;
+                    turnRight = turnPower;
                 }
             }
             else{
@@ -276,11 +276,19 @@ public class DriveTrain {
             opModeTool.telemetry.addData("turnRight: ", turnRight);
             opModeTool.telemetry.update();
         }  // end while
-        while (abs(toHeading-botHeading) > 2*PI/180 ) {
-            leftFrontMotor.setPower(turnLeft);  //yPower
-            leftBackMotor.setPower(turnLeft);  //xPower
-            rightFrontMotor.setPower(turnRight);  //yPower
-            rightBackMotor.setPower(turnRight);  //xPower
+        while (abs(toHeading-botHeading) > PI/180 ) {
+            if (toHeading-botHeading > 0) {
+                leftFrontMotor.setPower(turnPower);
+                leftBackMotor.setPower(turnPower);
+                rightFrontMotor.setPower(-turnPower);
+                rightBackMotor.setPower(-turnPower);
+            }
+            else{
+                leftFrontMotor.setPower(-turnPower);
+                leftBackMotor.setPower(-turnPower);
+                rightFrontMotor.setPower(turnPower);
+                rightBackMotor.setPower(turnPower);
+            }
         }
         leftFrontMotor.setPower(0.0);
         rightFrontMotor.setPower(0.0);
@@ -326,7 +334,7 @@ public class DriveTrain {
     public double turnTo(double turnPower, double toHeading){
         botHeading = sensors.getHeading();
         toHeading = PI/180 * toHeading;
-        while (toHeading-botHeading > PI/180 ) {
+        while (abs(toHeading-botHeading) > PI/180 ) {
             if (toHeading-botHeading > 0) {
                 leftFrontMotor.setPower(turnPower);
                 leftBackMotor.setPower(turnPower);
@@ -340,6 +348,9 @@ public class DriveTrain {
                 rightBackMotor.setPower(turnPower);
             }
             botHeading = sensors.getHeading();
+            opModeTool.telemetry.addData("botHeading: ", botHeading);
+            opModeTool.telemetry.update();
+
         }  // end while
         /*psudo code for correction
         make a special case if target is 180
@@ -352,6 +363,55 @@ public class DriveTrain {
         setHeading = toHeading;
         return botHeading;
     }  // end method turn
+
+    public void goVector(DriveVector vector, double turnPower){
+        turnPower = -turnPower;
+        if (vector.mag < 0.05) {
+            if (abs(turnPower) < 0.05) {
+                stop();
+                setHeading = sensors.getHeading();
+            } else {
+
+                leftFrontMotor.setPower(turnPower* scaleTurn);
+                leftBackMotor.setPower(turnPower* scaleTurn);
+                rightFrontMotor.setPower(-turnPower* scaleTurn);
+                rightBackMotor.setPower(-turnPower* scaleTurn);
+                setHeading = sensors.getHeading();
+            }
+
+        } else {
+
+            if (abs(turnPower) < 0.05) {
+                botHeading = sensors.getHeading();
+                headingOffset = (botHeading - setHeading);
+                if (abs(headingOffset) < PI/4) {
+                    turn = (kp * headingOffset) / (PI/4);
+                } else if (abs(headingOffset) < PI/3) {
+                    turn = kp * 1;
+                } else {
+                    turn = 0;
+                }  // end if-else
+
+                leftFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) - turn );  //yPower
+                leftBackMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) - turn );  //xPower
+                rightFrontMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) + turn);  //yPower
+                rightBackMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) + turn);  //xPower
+
+            } else {
+                // drive and turn at the same time
+                turn = turnPower * scaleTurn;
+
+                leftFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) - turn );  //yPower
+                leftBackMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) + turn );  //xPower
+                rightFrontMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) + turn);  //yPower
+                rightBackMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) - turn);  //xPower
+
+                setHeading = sensors.getHeading();
+
+            }
+
+        }
+    }
 
 }  // end class
 
