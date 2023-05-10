@@ -61,7 +61,10 @@ public class DriveVector {
         }
 
         mag = this.precisionScalar * rightMag;
-        angle = atan2(rightY, rightX);
+        angle = atan2(-rightY, -rightX);
+        if(-rightX == 0 || -rightY == 0){
+            angle = 0;
+        }
         heading();
         return this;
     }  // end method makeVector
