@@ -76,7 +76,8 @@ public class SensorNetwork extends Thread{
         opModeTool.idle();
         zeroHeading = orientation.getYaw(AngleUnit.RADIANS);
 
-
+        forwardColor = hardwareMap.get(NormalizedColorSensor.class, "frontColor");
+        forwardColor.setGain(0.5F);
 
 
 /*
@@ -153,7 +154,11 @@ public class SensorNetwork extends Thread{
         return (roll - zeroRoll)*180/Math.PI;
     }
 
-
+    public NormalizedRGBA getForwardColors() {
+        forwardColors = forwardColor.getNormalizedColors();
+        opModeTool.idle();
+        return forwardColors;
+    }
 
 
     /*
