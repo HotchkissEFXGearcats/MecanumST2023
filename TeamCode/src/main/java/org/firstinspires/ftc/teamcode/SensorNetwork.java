@@ -23,6 +23,7 @@ public class SensorNetwork extends Thread{
     private HardwareMap hardwareMap;
     private NormalizedColorSensor forwardColor;
     private NormalizedRGBA forwardColors;
+    private float forwardColorsComponent;
     private LinearOpMode opModeTool;
     private ElapsedTime timer;
 
@@ -175,6 +176,21 @@ public class SensorNetwork extends Thread{
         forwardColors = forwardColor.getNormalizedColors();
         opModeTool.idle();
         return forwardColors;
+    }
+
+    public float getForwardColorsComponent(int component){
+        forwardColors = forwardColor.getNormalizedColors();
+        opModeTool.idle();
+        if (component == 0){
+            forwardColorsComponent = forwardColors.alpha;
+        } else if (component == 1) {
+            forwardColorsComponent = forwardColors.red;
+        } else if (component == 2) {
+            forwardColorsComponent = forwardColors.green;
+        } else if (component == 3) {
+            forwardColorsComponent = forwardColors.blue;
+        }
+        return forwardColorsComponent;
     }
 
 
