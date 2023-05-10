@@ -16,7 +16,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class testingColorSensor extends LinearOpMode{
 
     private SensorNetwork sensor;
-    private NormalizedRGBA outValue;
+
+    private NormalizedRGBA allColor;
+    private float alpha;
 
     @Override
     public void runOpMode(){
@@ -25,8 +27,11 @@ public class testingColorSensor extends LinearOpMode{
         waitForStart();
 
         while (opModeIsActive()){
-            outValue = sensor.getForwardColors();
-            telemetry.addData("color", outValue);
+            allColor = sensor.getForwardColors();
+            alpha = sensor.getForwardColorsComponent(0);
+            telemetry.addData("color", allColor.alpha);
+            telemetry.addLine();
+            telemetry.addData("componentAlpha", alpha);
             telemetry.update();
         }
     }
