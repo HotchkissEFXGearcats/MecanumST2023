@@ -52,8 +52,8 @@ public class DriveVector {
         //precisionScalar = 0.2;
         //powerScalar = 0.75;
 
-        rightX = rightStickX;
-        rightY = rightStickY;
+        rightX = -rightStickX;
+        rightY = -rightStickY;
 
         rightMag = sqrt((rightY * rightY) + (rightX * rightX));
         if (rightMag > 1) {
@@ -62,9 +62,9 @@ public class DriveVector {
 
         mag = this.precisionScalar * rightMag;
         angle = atan2(-rightY, -rightX);
-        if(-rightX == 0 || -rightY == 0){
-            angle = 0;
-        }
+      //  if(-rightX == 0 || -rightY == 0){
+      //      angle = 0;
+      //  }
         heading();
         return this;
     }  // end method makeVector

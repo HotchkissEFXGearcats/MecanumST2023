@@ -363,12 +363,17 @@ public class DriveTrain {
         setHeading = toHeading;
         return botHeading;
     }  // end method turn
-
+    public void resetHeading(){
+        setHeading = sensors.getHeading();
+    }
     public void goVector(DriveVector vector, double turnPower){
         turnPower = -turnPower;
         if (vector.mag < 0.05) {
             if (abs(turnPower) < 0.05) {
-                stop();
+                leftFrontMotor.setPower(0.0);
+                rightFrontMotor.setPower(0.0);
+                leftBackMotor.setPower(0.0);
+                rightBackMotor.setPower(0.0);
                 setHeading = sensors.getHeading();
             } else {
 
@@ -392,18 +397,18 @@ public class DriveTrain {
                     turn = 0;
                 }  // end if-else
 
-                leftFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) - turn );  //yPower
-                leftBackMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) - turn );  //xPower
-                rightFrontMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) + turn);  //yPower
-                rightBackMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) + turn);  //xPower
+                leftFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) + turn );  //yPower
+                leftBackMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) + turn );  //xPower
+                rightFrontMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) - turn);  //yPower
+                rightBackMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) - turn);  //xPower
 
             } else {
                 // drive and turn at the same time
                 turn = turnPower * scaleTurn;
 
-                leftFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) - turn );  //yPower
+                leftFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) + turn );  //yPower
                 leftBackMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) + turn );  //xPower
-                rightFrontMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) + turn);  //yPower
+                rightFrontMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) - turn);  //yPower
                 rightBackMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) - turn);  //xPower
 
                 setHeading = sensors.getHeading();
