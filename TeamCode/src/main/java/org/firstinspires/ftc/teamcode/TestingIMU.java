@@ -16,8 +16,6 @@ public class TestingIMU extends LinearOpMode{
 
         sensor.initialize();
 
-
-
         waitForStart();
 
         sensor.start();
