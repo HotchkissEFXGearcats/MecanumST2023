@@ -33,7 +33,7 @@ public class driverMode extends LinearOpMode{
             drive.goVector(vector, gamepad1.left_stick_x);
             if(gamepad1.a){
                 drive.resetHeading();
-                telemetry.addData("I did it: ", drive.setHeading);
+                telemetry.addData("I did it: ", vector);
                 telemetry.update();
             }
         }// end while loop

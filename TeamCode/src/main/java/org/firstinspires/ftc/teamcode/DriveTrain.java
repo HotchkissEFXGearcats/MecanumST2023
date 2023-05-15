@@ -42,7 +42,7 @@ public class DriveTrain {
     private int avgPosition, positionLF, positionRF, positionLB, positionRB;
     private int start, finish, getGoing, slowDown, driveBuffer;
     private double driveHeading, botHeading, headingOffset, previous, duration;
-    public double setHeading;
+    private double setHeading = 0;
 
     
     private double kp, kAuto;
