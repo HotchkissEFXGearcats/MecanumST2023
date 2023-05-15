@@ -398,10 +398,10 @@ public class DriveTrain {
                     turn = 0;
                 }  // end if-else
 
-                leftFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) + turn );  //yPower
-                leftBackMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) + turn );  //xPower
-                rightFrontMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) - turn);  //yPower
-                rightBackMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) - turn);  //xPower
+                leftFrontMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) - turn );  //yPower
+                leftBackMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) - turn );  //xPower
+                rightFrontMotor.setPower(vector.mag * -sin((vector.angle - setHeading)-PI/4) + turn);  //yPower
+                rightBackMotor.setPower(vector.mag * sin((vector.angle - setHeading)+PI/4) + turn);  //xPower
 
             } else {
                 // drive and turn at the same time
