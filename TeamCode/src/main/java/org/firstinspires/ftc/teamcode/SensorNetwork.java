@@ -178,7 +178,7 @@ public class SensorNetwork extends Thread{
         return forwardColors;
     }
 
-    public float getForwardColorsComponent(int component){
+    public double getForwardColorsComponent(int component){
         forwardColors = forwardColor.getNormalizedColors();
         opModeTool.idle();
         if (component == 0){

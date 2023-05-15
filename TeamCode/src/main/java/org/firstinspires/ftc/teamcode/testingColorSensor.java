@@ -18,7 +18,7 @@ public class testingColorSensor extends LinearOpMode{
     private SensorNetwork sensor;
 
     private NormalizedRGBA allColor;
-    private float alpha;
+    private double alpha;
 
     @Override
     public void runOpMode(){
@@ -35,5 +35,7 @@ public class testingColorSensor extends LinearOpMode{
             telemetry.update();
         }
     }
-
 }
+//Tile Value: 0.32
+//Tape Value: 0.84
+//Target Value: 0.76
